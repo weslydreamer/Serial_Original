@@ -13,6 +13,28 @@
 #include <chrono>
 #include <thread>
 
+//define master manipulator class for communications
+class MasterManipulator
+{
+private:
+  /* data */
+public:
+  MasterManipulator(/* args */);
+  ~MasterManipulator();
+  uint8_t Com_init(void);
+};
+
+MasterManipulator::MasterManipulator(/* args */)
+{
+
+}
+
+MasterManipulator::~MasterManipulator()
+{
+
+}
+
+
 void tic(int mode=0) {
     static std::chrono::_V2::system_clock::time_point t_start;
     
