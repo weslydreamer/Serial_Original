@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/SerialPort_Original.dir/src/main.o  -o SerialPort_Original 

@@ -1,0 +1,3 @@
+/home/wd123/Documents/code/SerialPort/SerialPort_Original/build/CMakeFiles/rebuild_cache.dir
+/home/wd123/Documents/code/SerialPort/SerialPort_Original/build/CMakeFiles/edit_cache.dir
+/home/wd123/Documents/code/SerialPort/SerialPort_Original/build/CMakeFiles/SerialPort_Original.dir
