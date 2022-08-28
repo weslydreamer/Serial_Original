@@ -8,9 +8,27 @@
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h> // write(), read(), close()
 
+//time test
+#include <iostream>
+#include <chrono>
+#include <thread>
+
+void tic(int mode=0) {
+    static std::chrono::_V2::system_clock::time_point t_start;
+    
+    if (mode==0)
+        t_start = std::chrono::high_resolution_clock::now();
+    else {
+        auto t_end = std::chrono::high_resolution_clock::now();
+        std::cout << "Elapsed time is " << (t_end-t_start).count()*1E-9 << " seconds\n";
+    }
+}
+void toc() { tic(1); }
+
+
 int main() {
   // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
-  int serial_port = open("/dev/ttyUSB0", O_RDWR);
+  int serial_port = open("/dev/ttyUSB1", O_RDWR);
 
   // Create new termios struct, we call it 'tty' for convention
   struct termios tty;
@@ -44,9 +62,9 @@ int main() {
   tty.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
   tty.c_cc[VMIN] = 0;
 
-  // Set in/out baud rate to be 115200
-  cfsetispeed(&tty, B1152000);
-  cfsetospeed(&tty, B1152000);
+  // Set in/out baud rate to be 9600
+  cfsetispeed(&tty, B9600);
+  cfsetospeed(&tty, B9600);
 
   // Save tty settings, also checking for error
   if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
@@ -58,28 +76,35 @@ int main() {
 //   unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r' };
 //   write(serial_port, msg, sizeof(msg));
 
-  // Allocate memory for read buffer, set size according to your needs
-  char read_buf [256];
+  while(1)
+  {
+    // Allocate memory for read buffer, set size according to your needs
+    char read_buf [256];
 
-  // Normally you wouldn't do this memset() call, but since we will just receive
-  // ASCII data for this example, we'll set everything to 0 so we can
-  // call printf() easily.
-  memset(&read_buf, '\0', sizeof(read_buf));
+    tic();
 
-  // Read bytes. The behaviour of read() (e.g. does it block?,
-  // how long does it block for?) depends on the configuration
-  // settings above, specifically VMIN and VTIME
-  int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
+    // Normally you wouldn't do this memset() call, but since we will just receive
+    // ASCII data for this example, we'll set everything to 0 so we can
+    // call printf() easily.
+    memset(&read_buf, '\0', sizeof(read_buf));
 
-  // n is the number of bytes read. n may be 0 if no bytes were received, and can also be -1 to signal an error.
-  if (num_bytes < 0) {
-      printf("Error reading: %s", strerror(errno));
-      return 1;
+    // Read bytes. The behaviour of read() (e.g. does it block?,
+    // how long does it block for?) depends on the configuration
+    // settings above, specifically VMIN and VTIME
+    int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
+
+    // n is the number of bytes read. n may be 0 if no bytes were received, and can also be -1 to signal an error.
+    if (num_bytes < 0) {
+        printf("Error reading: %s", strerror(errno));
+        return 1;
+    }
+
+    toc();
+
+    // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
+    // print it to the screen like this!)
+    printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
   }
-
-  // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
-  // print it to the screen like this!)
-  printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
 
   close(serial_port);
   return 0; // success

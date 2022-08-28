@@ -19,4 +19,10 @@ termios.h
 -
 unistd.h
 -
+iostream
+-
+chrono
+-
+thread
+-
 
